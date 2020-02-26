@@ -116,7 +116,6 @@ class AnimatedGraph @JvmOverloads constructor(
         isAntiAlias = true
     }
     private val textPaintBg: Paint = Paint()
-
     private val textRect: Rect = Rect()
 
     private var zeroY: Float = 0f
@@ -126,7 +125,6 @@ class AnimatedGraph @JvmOverloads constructor(
     private var weeksDistanceScale: Float = 0f
 
     private var markers: List<Marker> = mutableListOf()
-    private var markersForAnimation: MutableList<Marker> = mutableListOf()
     private var weeks: MutableList<String> = mutableListOf()
 
     private val gradientPath: Path = Path()
@@ -158,28 +156,24 @@ class AnimatedGraph @JvmOverloads constructor(
         }
     }
 
-    fun setMarkersAndWeeks(markers: List<Marker>, weeks: List<String>, animate: Boolean = true) {
+    fun setMarkersAndWeeks(markers: List<Marker>, weeks: List<String>) {
         this.weeks = weeks.toMutableList()
         this.markers = markers
         initGraduations()
         initWeeks()
-        if (animate) {
-            Thread {
-                ADD_LOCK.withLock {
-                    for (element in markers) {
-                        currentMarker = element
-                        currentX = lastX
-                        currentY = lastY
-                        lineIteratorCounter = 0
-                        postInvalidate()
-                        ADD_CONDITION.await()
-                    }
+        Thread {
+            ADD_LOCK.withLock {
+                for (element in markers) {
+                    currentMarker = element
+                    currentX = lastX
+                    currentY = lastY
+                    lineIteratorCounter = 0
+                    postInvalidate()
+                    ADD_CONDITION.await()
                 }
+            }
 
-            }.start()
-        } else {
-            markersForAnimation.addAll(markers)
-        }
+        }.start()
     }
 
     private fun initWeeks() {
