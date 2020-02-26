@@ -239,6 +239,10 @@ class AnimatedGraph @JvmOverloads constructor(
     private fun calcAndInvalidate() {
         calcPositions(markers)
         initGradient()
+        lastY = markers[0].currentPos.y
+        lastX = markers[0].currentPos.x
+        currentX = lastX
+        currentY = lastY
     }
 
     private fun initGradient() {
@@ -274,7 +278,6 @@ class AnimatedGraph @JvmOverloads constructor(
     private fun drawLineAndMarkers(canvas: Canvas) {
         ADD_LOCK.withLock {
             if (currentMarker == null) {
-                chartPath.moveTo(paddingLeft.toFloat(), zeroY)
                 ADD_CONDITION.signalAll()
             }
             currentMarker?.let { currentMarker ->
@@ -284,6 +287,7 @@ class AnimatedGraph @JvmOverloads constructor(
                 currentX += (toX - lastX) / LINE_ITERATOR_MODIFIER
                 currentY += (toY - lastY) / LINE_ITERATOR_MODIFIER
 
+                chartPath.moveTo(lastX, lastY)
                 chartPath.lineTo(currentX, currentY)
 
                 drawGradient(canvas)
