@@ -8,14 +8,14 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
 import bg.dihanov.customviewexamples.R
-import bg.dihanov.customviewexamples.views.px
+import bg.dihanov.customviewexamples.px
 import java.text.NumberFormat
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.math.max
 import kotlin.math.min
 
-//as per this guide https://proandroiddev.com/building-a-custom-view-a-practical-example-2753cb9d0e80 but animated
+//finished as per https://proandroiddev.com/building-a-custom-view-a-practical-example-2753cb9d0e80 but animated
 class AnimatedGraph @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

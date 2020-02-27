@@ -4,4 +4,11 @@
         <attr name="arc_progressColor" format="color" />
         <attr name="arc_textColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="ColorfulProgressBar">
+        <attr name="colorfulBar_startColor" format="color" />
+        <attr name="colorfulBar_endColor" format="color" />
+        <attr name="colorfulBar_cornerRadius" format="float" />
+        <attr name="colorfulBar_expandFromMiddle" format="boolean" />
+    </declare-styleable>
 </resources>

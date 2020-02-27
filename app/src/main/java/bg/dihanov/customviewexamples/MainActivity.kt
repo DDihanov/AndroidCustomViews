@@ -1,11 +1,11 @@
 package bg.dihanov.customviewexamples
 
 import android.animation.ValueAnimator
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.animation.LinearInterpolator
-import bg.dihanov.customviewexamples.views.Color
+import androidx.appcompat.app.AppCompatActivity
 import bg.dihanov.customviewexamples.views.graph.Marker
+import bg.dihanov.customviewexamples.views.misc.Color
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
             this.add(Marker(value = 65))
             this.add(Marker(value = 22))
         }
+
         val weeks = mutableListOf<String>().apply {
             this.add("week 1")
             this.add("week 2")
@@ -39,8 +40,10 @@ class MainActivity : AppCompatActivity() {
 
         ValueAnimator.ofInt(0, 100).apply {
             addUpdateListener { updatedAnimation ->
-                progress_circular.setPercentage(updatedAnimation.animatedValue as Int)
+                val progress = updatedAnimation.animatedValue as Int
+                progress_circular.setPercentage(progress)
 //                progress_arc.progress = updatedAnimation.animatedValue as Int
+//                colorful_progressbar.progress = progress
             }
             interpolator = LinearInterpolator()
             duration = 10000
@@ -49,8 +52,9 @@ class MainActivity : AppCompatActivity() {
 
         graph.setMarkersAndWeeks(markers, weeks)
         normal_graph.setMarkersAndWeeks(markers, weeks)
-        indicator.colors = listOf(Color.RED, Color.BLUE)
+        indicator.colors = listOf(Color.RED, Color.BLUE, Color.GREEN)
 
         progress_arc.progressToValueManually(10000)
+        colorful_progressbar.progressToManually(10000)
     }
 }

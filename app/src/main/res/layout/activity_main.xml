@@ -32,19 +32,30 @@
                android:layout_width="match_parent"
                android:layout_height="match_parent" />
 
-           <bg.dihanov.customviewexamples.views.ArcProgressBar
+           <bg.dihanov.customviewexamples.views.progress.ColorfulProgressBar
+               android:layout_marginTop="20dp"
+               android:layout_marginBottom="20dp"
+               android:id="@+id/colorful_progressbar"
+               app:colorfulBar_cornerRadius="20.0"
+               app:colorfulBar_startColor="@color/green"
+               app:colorfulBar_endColor="@color/red"
+               app:colorfulBar_expandFromMiddle="true"
+               android:layout_width="match_parent"
+               android:layout_height="5dp" />
+
+           <bg.dihanov.customviewexamples.views.progress.arcprogressbar.ArcProgressBar
                android:id="@+id/progress_arc"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                app:arc_progressColor="@color/blue"
                app:arc_textColor="@color/red" />
 
-           <bg.dihanov.customviewexamples.views.IndicatorView
+           <bg.dihanov.customviewexamples.views.misc.IndicatorView
                android:id="@+id/indicator"
                android:layout_width="100dp"
                android:layout_height="100dp" />
 
-           <bg.dihanov.customviewexamples.views.CircularProgressView
+           <bg.dihanov.customviewexamples.views.progress.circularprogressview.CircularProgressView
                android:id="@+id/progress_circular"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content" />

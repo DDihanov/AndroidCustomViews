@@ -1,4 +1,4 @@
-package bg.dihanov.customviewexamples.views
+package bg.dihanov.customviewexamples.views.progress.circularprogressview
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import bg.dihanov.customviewexamples.R
+import bg.dihanov.customviewexamples.px
 import kotlin.math.max
 import kotlin.math.min
 

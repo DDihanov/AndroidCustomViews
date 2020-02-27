@@ -1,15 +1,19 @@
-package bg.dihanov.customviewexamples.views
+package bg.dihanov.customviewexamples.views.progress.arcprogressbar
 
 import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.ContextCompat
 import bg.dihanov.customviewexamples.R
+import bg.dihanov.customviewexamples.px
 import kotlin.math.max
 import kotlin.math.min
 
@@ -33,14 +37,16 @@ class ArcProgressBar @JvmOverloads constructor(
     private val bgPaint = Paint().apply {
         color = greyColor
         style = Paint.Style.STROKE
-        strokeWidth = DEFAULT_STROKE_WIDTH
+        strokeWidth =
+            DEFAULT_STROKE_WIDTH
         strokeCap = Paint.Cap.BUTT
         isAntiAlias = true
     }
 
     private val loadingPaint = Paint().apply {
         color = loadingColor
-        strokeWidth = DEFAULT_STROKE_LOADING_WIDTH
+        strokeWidth =
+            DEFAULT_STROKE_LOADING_WIDTH
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.BUTT
         isAntiAlias = true
