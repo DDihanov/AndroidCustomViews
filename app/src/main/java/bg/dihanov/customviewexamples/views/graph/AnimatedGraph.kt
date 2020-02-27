@@ -22,11 +22,13 @@ class AnimatedGraph @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
     companion object {
+        //this is the value that will divide the current path segment into equal parts
         private const val LINE_ITERATOR_MODIFIER = 15
         private const val MAX_WEEKS = 4
 
         private val ADD_LOCK = ReentrantLock()
         private val ADD_CONDITION = ADD_LOCK.newCondition()
+
         private var INTERVAL = 5.px.toFloat()
         private var DOTTED_STROKE_WIDTH_DP = 1.px.toFloat()
         private var STROKE_WIDTH_DP = 1.px.toFloat()
@@ -163,6 +165,7 @@ class AnimatedGraph @JvmOverloads constructor(
         this.markers = markers
         initGraduations()
         initWeeks()
+        //start the feeder thread, and feed markers to the draw method one by one
         Thread {
             ADD_LOCK.withLock {
                 for (element in markers) {
@@ -234,11 +237,11 @@ class AnimatedGraph @JvmOverloads constructor(
         weeksDistanceScale = (width / weeks.size).toFloat()
         graduationsDistanceScale = (height / graduations.size) * 0.8.toFloat()
         textPaint.textSize = scaleSpaceToLeaveForGraduations * 0.4.toFloat()
-        calcAndInvalidate()
+        calculatePositionsAndInitGradient()
         setMeasuredDimension(width, height)
     }
 
-    private fun calcAndInvalidate() {
+    private fun calculatePositionsAndInitGradient() {
         calcPositions(markers)
         initGradient()
         lastY = markers[0].currentPos.y
@@ -279,6 +282,7 @@ class AnimatedGraph @JvmOverloads constructor(
 
     private fun drawLineAndMarkers(canvas: Canvas) {
         ADD_LOCK.withLock {
+            //if the current marker hasn't been initialized signal the feeding thread to init it
             if (currentMarker == null) {
                 ADD_CONDITION.signalAll()
             }
@@ -286,6 +290,7 @@ class AnimatedGraph @JvmOverloads constructor(
                 val toX = currentMarker.currentPos.x
                 val toY = currentMarker.currentPos.y
 
+                //iterate the current X and Y with an equal amount each time
                 currentX += (toX - lastX) / LINE_ITERATOR_MODIFIER
                 currentY += (toY - lastY) / LINE_ITERATOR_MODIFIER
 
@@ -298,6 +303,7 @@ class AnimatedGraph @JvmOverloads constructor(
                 canvas.drawPath(circlePath, pointPaint)
                 lineIteratorCounter++
 
+                //when the last segment has been added, draw the marker(circle) - this is better than to compare X and Y because floating point numbers can be finicky
                 if (lineIteratorCounter >= LINE_ITERATOR_MODIFIER) {
                     circlePath.addCircle(
                         currentX,
@@ -308,6 +314,7 @@ class AnimatedGraph @JvmOverloads constructor(
 
                     lastX = toX
                     lastY = toY
+                    //signal the feeder thread that this segment of the path has been completed, and request the next marker
                     ADD_CONDITION.signalAll()
                     invalidate()
                     return
@@ -358,12 +365,39 @@ class AnimatedGraph @JvmOverloads constructor(
     }
 
     private fun drawGradient(canvas: Canvas) {
+        //move the gradient path to the last X and Y
+        //    *
+        //
+        //
+        //
         gradientPath.moveTo(lastX, lastY)
+
+        //make a line from the last X and Y to the current iteration of X and Y
+        //    *---*
+        //
+        //
+        //
         gradientPath.lineTo(currentX, currentY)
-        // close the path
+
+        //make a line from the currentX to the bottom of the graph
+        //    *---*
+        //        |
+        //        |
+        //        |
         gradientPath.lineTo(currentX, zeroY)
+
+        //make a line from the current iteration of X to the last one, closing off one segment and closing the path
+        //    *---*
+        //        |
+        //        |
+        //    ____|
         gradientPath.lineTo(lastX, zeroY)
 
+        //the shape automatically closes on itself
+        //    *---*
+        //    |   |
+        //    |   |
+        //    |___|
         canvas.drawPath(gradientPath, gradientPaint!!)
     }
 
