@@ -134,10 +134,12 @@ class ColorfulProgressBar @JvmOverloads constructor(
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
-        if (state is Bundle) {
-            progress = state.getInt(PROGRESS_KEY)
-            val saved = state.getBundle(SUPER_STATE_KEY)
-            super.onRestoreInstanceState(saved)
+        var newState = state
+        if (newState is Bundle) {
+            progress = newState.getInt(PROGRESS_KEY)
+            newState = newState.getParcelable(SUPER_STATE_KEY)
         }
+        super.onRestoreInstanceState(newState)
     }
+
 }

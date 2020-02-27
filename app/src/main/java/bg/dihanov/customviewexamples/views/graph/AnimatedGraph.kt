@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
@@ -139,6 +140,8 @@ class AnimatedGraph @JvmOverloads constructor(
     private var chartWidth: Int = 0
     private var scaleSpaceToLeaveForGraduations: Int = 0
 
+    private var feederThread: Thread? = null
+
     init {
         dottedPaint = Paint().apply {
             this.style = Paint.Style.STROKE
@@ -166,19 +169,24 @@ class AnimatedGraph @JvmOverloads constructor(
         initGraduations()
         initWeeks()
         //start the feeder thread, and feed markers to the draw method one by one
-        Thread {
-            ADD_LOCK.withLock {
-                for (element in markers) {
-                    currentMarker = element
-                    currentX = lastX
-                    currentY = lastY
-                    lineIteratorCounter = 0
-                    postInvalidate()
-                    ADD_CONDITION.await()
+        feederThread = Thread {
+            try {
+                ADD_LOCK.withLock {
+                    for (element in markers) {
+                        Log.d("PROGRESIUS", Thread.currentThread().name)
+                        currentMarker = element
+                        currentX = lastX
+                        currentY = lastY
+                        lineIteratorCounter = 0
+                        postInvalidate()
+                        ADD_CONDITION.await()
+                    }
                 }
-            }
+            } catch (e: InterruptedException) {
 
-        }.start()
+            }
+        }
+        feederThread?.start()
     }
 
     private fun initWeeks() {
@@ -278,6 +286,11 @@ class AnimatedGraph @JvmOverloads constructor(
             canvas.drawText(formatted, x, y, textPaint)
             step += graduationsDistanceScale
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        feederThread?.interrupt()
     }
 
     private fun drawLineAndMarkers(canvas: Canvas) {
