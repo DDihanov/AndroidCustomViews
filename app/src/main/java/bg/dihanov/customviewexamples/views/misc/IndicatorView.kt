@@ -10,6 +10,9 @@ import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
 import bg.dihanov.customviewexamples.R
+import bg.dihanov.customviewexamples.px
+import kotlin.math.max
+import kotlin.math.min
 
 //as per https://medium.com/@dbottillo/creating-android-custom-view-6d8d46122cf5
 class IndicatorView @JvmOverloads constructor(
@@ -76,6 +79,32 @@ class IndicatorView @JvmOverloads constructor(
             }
         }
         animator?.start()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
+        var width = paddingLeft + paddingRight
+        var height = paddingTop + paddingBottom
+
+        if (widthMode == MeasureSpec.EXACTLY) {
+            width = widthSize
+        } else {
+            width += 100.px
+            width = max(width, suggestedMinimumWidth)
+            if (widthMode == MeasureSpec.AT_MOST) width = min(widthSize, width)
+        }
+        if (heightMode == MeasureSpec.EXACTLY) {
+            height = heightSize
+        } else {
+            height += 100.px
+            height = max(height, suggestedMinimumHeight)
+            if (heightMode == MeasureSpec.AT_MOST) height = min(height, heightSize)
+        }
+
+        setMeasuredDimension(width, height)
     }
 
     override fun onDraw(canvas: Canvas) {
