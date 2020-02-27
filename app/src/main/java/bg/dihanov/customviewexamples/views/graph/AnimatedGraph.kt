@@ -44,6 +44,7 @@ class AnimatedGraph @JvmOverloads constructor(
         set(value) {
             _colorStart = value
             colors = intArrayOf(colorStart, colorEnd)
+            invalidate()
         }
 
     private var _colorEnd: Int = ContextCompat.getColor(context, R.color.colorEnd)
@@ -52,6 +53,7 @@ class AnimatedGraph @JvmOverloads constructor(
         set(value) {
             _colorEnd = value
             colors = intArrayOf(colorStart, colorEnd)
+            invalidate()
         }
 
     private var _lineColor: Int = ContextCompat.getColor(context, R.color.lineColor)
