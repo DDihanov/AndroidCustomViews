@@ -35,6 +35,10 @@ class MainActivity : AppCompatActivity() {
             this.add("week 3")
             this.add("week 4")
             this.add("week 5")
+            this.add("week 6")
+            this.add("week 7")
+            this.add("week 8")
+            this.add("week 9")
         }
 
 

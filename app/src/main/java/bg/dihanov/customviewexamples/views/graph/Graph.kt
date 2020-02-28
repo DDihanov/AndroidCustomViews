@@ -103,6 +103,11 @@ class Graph @JvmOverloads constructor(
         this.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL)
         isAntiAlias = true
     }
+    private val graduationsTextPaint: TextPaint = TextPaint().apply {
+        this.color = ContextCompat.getColor(context, R.color.textColor)
+        this.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL)
+        isAntiAlias = true
+    }
     private val textPaintBg: Paint = Paint()
 
     private val textRect: Rect = Rect()
@@ -206,7 +211,8 @@ class Graph @JvmOverloads constructor(
         scaleSpaceToLeaveForGraduations = (width - 2 * GRADUATIONS_SIDE_PADDING) / markers.size
         weeksDistanceScale = (width / weeks.size).toFloat()
         graduationsDistanceScale = (height / graduations.size) * 0.8.toFloat()
-        textPaint.textSize = scaleSpaceToLeaveForGraduations * 0.4.toFloat()
+        textPaint.textSize = weeksDistanceScale / weeks.size / 1.5f
+        graduationsTextPaint.textSize = scaleSpaceToLeaveForGraduations * 0.4.toFloat()
         calcAndInvalidate()
         setMeasuredDimension(width, height)
     }
@@ -243,7 +249,7 @@ class Graph @JvmOverloads constructor(
         for (value in graduations) {
             val y = zeroY - step
             val formatted = NumberFormat.getIntegerInstance().format(value)
-            canvas.drawText(formatted, x, y, textPaint)
+            canvas.drawText(formatted, x, y, graduationsTextPaint)
             step += graduationsDistanceScale
         }
     }

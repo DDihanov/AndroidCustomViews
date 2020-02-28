@@ -10,8 +10,6 @@ import androidx.core.graphics.toRectF
 import bg.dihanov.customviewexamples.R
 import bg.dihanov.customviewexamples.px
 import java.text.NumberFormat
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.math.max
 import kotlin.math.min
 
@@ -25,9 +23,6 @@ class AnimatedGraph @JvmOverloads constructor(
         //this is the value that will divide the current path segment into equal parts
         private const val LINE_ITERATOR_MODIFIER = 15
         private const val MAX_WEEKS = 4
-
-        private val ADD_LOCK = ReentrantLock()
-        private val ADD_CONDITION = ADD_LOCK.newCondition()
 
         private var INTERVAL = 5.px.toFloat()
         private var DOTTED_STROKE_WIDTH_DP = 1.px.toFloat()
@@ -109,12 +104,17 @@ class AnimatedGraph @JvmOverloads constructor(
     private var lastX = 0f
     private var lastY = 0f
     private val chartPath = Path()
-    private var currentMarker: Marker? = null
+    private var currentMarkerIndex = 0
 
     private val dottedPaint: Paint
     private val strokePaint: Paint
     private val pointPaint: Paint
     private val textPaint: TextPaint = TextPaint().apply {
+        this.color = ContextCompat.getColor(context, R.color.textColor)
+        this.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL)
+        isAntiAlias = true
+    }
+    private val graduationsTextPaint: TextPaint = TextPaint().apply {
         this.color = ContextCompat.getColor(context, R.color.textColor)
         this.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL)
         isAntiAlias = true
@@ -138,8 +138,6 @@ class AnimatedGraph @JvmOverloads constructor(
     private var chartHeight: Int = 0
     private var chartWidth: Int = 0
     private var scaleSpaceToLeaveForGraduations: Int = 0
-
-    private var feederThread: Thread? = null
 
     init {
         dottedPaint = Paint().apply {
@@ -167,24 +165,7 @@ class AnimatedGraph @JvmOverloads constructor(
         this.markers = markers
         initGraduations()
         initWeeks()
-        //start the feeder thread, and feed markers to the draw method one by one
-        feederThread = Thread {
-            try {
-                ADD_LOCK.withLock {
-                    for (element in markers) {
-                        currentMarker = element
-                        currentX = lastX
-                        currentY = lastY
-                        lineIteratorCounter = 0
-                        postInvalidate()
-                        ADD_CONDITION.await()
-                    }
-                }
-            } catch (e: InterruptedException) {
-
-            }
-        }
-        feederThread?.start()
+        postInvalidate()
     }
 
     private fun initWeeks() {
@@ -242,7 +223,8 @@ class AnimatedGraph @JvmOverloads constructor(
         scaleSpaceToLeaveForGraduations = (width - 2 * GRADUATIONS_SIDE_PADDING) / markers.size
         weeksDistanceScale = (width / weeks.size).toFloat()
         graduationsDistanceScale = (height / graduations.size) * 0.8.toFloat()
-        textPaint.textSize = scaleSpaceToLeaveForGraduations * 0.4.toFloat()
+        textPaint.textSize = weeksDistanceScale / weeks.size / 1.5f
+        graduationsTextPaint.textSize = scaleSpaceToLeaveForGraduations * 0.4.toFloat()
         calculatePositionsAndInitGradient()
         setMeasuredDimension(width, height)
     }
@@ -281,60 +263,62 @@ class AnimatedGraph @JvmOverloads constructor(
         for (value in graduations) {
             val y = zeroY - step
             val formatted = NumberFormat.getIntegerInstance().format(value)
-            canvas.drawText(formatted, x, y, textPaint)
+            canvas.drawText(formatted, x, y, graduationsTextPaint)
             step += graduationsDistanceScale
         }
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        feederThread?.interrupt()
+    private fun drawLineAndMarkers(canvas: Canvas) {
+        //if this is the final iteration, draw everything one last time and exit
+        if (currentMarkerIndex >= markers.size) {
+            drawGradientAndPath(canvas)
+            return
+        }
+
+        val currentMarker = markers[currentMarkerIndex]
+
+        val toX = currentMarker.currentPos.x
+        val toY = currentMarker.currentPos.y
+
+        //iterate the current X and Y with an equal amount each time
+        currentX += (toX - lastX) / LINE_ITERATOR_MODIFIER
+        currentY += (toY - lastY) / LINE_ITERATOR_MODIFIER
+
+        chartPath.moveTo(lastX, lastY)
+        chartPath.lineTo(currentX, currentY)
+
+        drawGradientAndPath(canvas)
+
+        lineIteratorCounter++
+
+        //when the last segment has been added, draw the marker(circle) - this is better than to compare X and Y because floating point numbers can be finicky
+        if (lineIteratorCounter >= LINE_ITERATOR_MODIFIER) {
+            circlePath.addCircle(
+                currentX,
+                currentY,
+                POINT_RADIUS,
+                Path.Direction.CCW
+            )
+
+            //reset the values, prepare for the next marker
+            lastX = toX
+            lastY = toY
+            currentX = lastX
+            currentY = lastY
+            lineIteratorCounter = 0
+            currentMarkerIndex++
+
+            invalidate()
+            return
+        }
+
+        invalidate()
     }
 
-    private fun drawLineAndMarkers(canvas: Canvas) {
-        ADD_LOCK.withLock {
-            //if the current marker hasn't been initialized signal the feeding thread to init it
-            if (currentMarker == null) {
-                ADD_CONDITION.signalAll()
-            }
-            currentMarker?.let { currentMarker ->
-                val toX = currentMarker.currentPos.x
-                val toY = currentMarker.currentPos.y
-
-                //iterate the current X and Y with an equal amount each time
-                currentX += (toX - lastX) / LINE_ITERATOR_MODIFIER
-                currentY += (toY - lastY) / LINE_ITERATOR_MODIFIER
-
-                chartPath.moveTo(lastX, lastY)
-                chartPath.lineTo(currentX, currentY)
-
-                drawGradient(canvas)
-
-                canvas.drawPath(chartPath, strokePaint)
-                canvas.drawPath(circlePath, pointPaint)
-                lineIteratorCounter++
-
-                //when the last segment has been added, draw the marker(circle) - this is better than to compare X and Y because floating point numbers can be finicky
-                if (lineIteratorCounter >= LINE_ITERATOR_MODIFIER) {
-                    circlePath.addCircle(
-                        currentX,
-                        currentY,
-                        POINT_RADIUS,
-                        Path.Direction.CCW
-                    )
-
-                    lastX = toX
-                    lastY = toY
-                    //signal the feeder thread that this segment of the path has been completed, and request the next marker
-                    ADD_CONDITION.signalAll()
-                    invalidate()
-                    return
-                }
-
-                invalidate()
-            }
-
-        }
+    private fun drawGradientAndPath(canvas: Canvas) {
+        drawGradient(canvas)
+        canvas.drawPath(chartPath, strokePaint)
+        canvas.drawPath(circlePath, pointPaint)
     }
 
     private fun drawWeeks(canvas: Canvas) {
