@@ -214,7 +214,7 @@ class Graph @JvmOverloads constructor(
         textPaint.textSize = weeksDistanceScale / weeks.size / 1.5f
         graduationsTextPaint.textSize = scaleSpaceToLeaveForGraduations * 0.4.toFloat()
         calcAndInvalidate()
-        setMeasuredDimension(width, height)
+        setMeasuredDimension(chartWidth, height + WEEK_PADDING)
     }
 
     private fun calcAndInvalidate() {
