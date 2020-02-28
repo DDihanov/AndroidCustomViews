@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.*
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
@@ -173,7 +172,6 @@ class AnimatedGraph @JvmOverloads constructor(
             try {
                 ADD_LOCK.withLock {
                     for (element in markers) {
-                        Log.d("PROGRESIUS", Thread.currentThread().name)
                         currentMarker = element
                         currentX = lastX
                         currentY = lastY
