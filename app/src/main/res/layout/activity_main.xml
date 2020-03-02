@@ -20,6 +20,28 @@
            android:orientation="vertical"
            android:layout_height="wrap_content">
 
+           <LinearLayout
+               android:orientation="horizontal"
+               android:layout_width="match_parent"
+               android:layout_height="200dp" >
+
+               <bg.dihanov.customviewexamples.views.progress.SpiralProgressBar
+                   android:layout_weight="1"
+                   app:spiralProgressBar_startColor="@color/colorStart"
+                   app:spiralProgressBar_endColor="@color/colorEnd"
+                   android:layout_width="0dp"
+                   android:layout_height="match_parent" />
+
+
+               <bg.dihanov.customviewexamples.views.progress.SpiralProgressBar
+                   android:layout_weight="1"
+                   app:spiralProgressBar_startColor="@color/colorAccent"
+                   app:spiralProgressBar_endColor="@color/colorPrimary"
+                   android:layout_width="0dp"
+                   android:layout_height="match_parent" />
+           </LinearLayout>
+
+
            <bg.dihanov.customviewexamples.views.graph.AnimatedGraph
                android:padding="5dp"
                android:id="@+id/graph"

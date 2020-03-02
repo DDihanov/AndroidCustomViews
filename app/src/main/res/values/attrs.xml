@@ -11,4 +11,9 @@
         <attr name="colorfulBar_cornerRadius" format="float" />
         <attr name="colorfulBar_expandFromMiddle" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="SpiralProgressBar">
+        <attr name="spiralProgressBar_startColor" format="color" />
+        <attr name="spiralProgressBar_endColor" format="color" />
+    </declare-styleable>
 </resources>
