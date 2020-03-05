@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
 
         graph.setMarkersAndWeeks(markers, weeks)
         normal_graph.setMarkersAndWeeks(markers, weeks)
+        extra_graph.setMarkersAndWeeks(markers, weeks)
         indicator.colors = listOf(Color.RED, Color.BLUE, Color.GREEN)
 
         progress_arc.progressToValueManually(10000)

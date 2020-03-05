@@ -39,6 +39,7 @@
                    app:spiralProgressBar_endColor="@color/colorPrimary"
                    android:layout_width="0dp"
                    android:layout_height="match_parent" />
+
            </LinearLayout>
 
 
@@ -48,11 +49,19 @@
                android:layout_width="match_parent"
                android:layout_height="match_parent" />
 
+
+           <bg.dihanov.customviewexamples.views.graph.AnimatedGraphWithPathMeasure
+               android:padding="5dp"
+               android:id="@+id/extra_graph"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent" />
+
            <bg.dihanov.customviewexamples.views.graph.Graph
                android:padding="5dp"
                android:id="@+id/normal_graph"
                android:layout_width="match_parent"
                android:layout_height="match_parent" />
+
 
            <bg.dihanov.customviewexamples.views.progress.ColorfulProgressBar
                android:layout_marginTop="20dp"

@@ -1,7 +1,10 @@
 package bg.dihanov.customviewexamples.views.progress
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RadialGradient
+import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -23,16 +26,6 @@ class SpiralProgressBar @JvmOverloads constructor(
 
         private val DEFAULT_HEIGHT = 100.px
         private val DEFAULT_WIDTH = 100.px
-    }
-
-    private var spiralPath = Path()
-
-    private var spiralPaint = Paint().apply {
-        isAntiAlias = true
-        color = ContextCompat.getColor(context, R.color.red)
-        strokeWidth = 2.px.toFloat()
-        style = Paint.Style.STROKE
-        strokeCap = Paint.Cap.BUTT
     }
 
     private val gradientPaint = Paint().apply {
@@ -95,8 +88,6 @@ class SpiralProgressBar @JvmOverloads constructor(
     private var increment = 2 * Math.PI / STEPS_PER_ROTATION
     private var mod = 0.0f
 
-
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
@@ -123,7 +114,6 @@ class SpiralProgressBar @JvmOverloads constructor(
         centerX = width / 2.toFloat()
         centerY = height / 2.toFloat()
 
-        spiralPath.moveTo(centerX, centerY)
 
         gradientPaint.shader = RadialGradient(centerX, centerY, height.toFloat() / 2,
             startColor,
